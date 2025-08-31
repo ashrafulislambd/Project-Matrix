@@ -1,14 +1,14 @@
 package com.ashraful;
 
 import java.util.ArrayList;
-
+import javafx.scene.transform.Rotate;
 import javafx.scene.canvas.GraphicsContext;
 
 public class AbstractNode {
     double x, y;
 
     AbstractNode parent;
-
+    protected double rotation = 0; //this is the rotation in degree. i mean angle
     ArrayList<AbstractNode> children = new ArrayList<>();
 
     GraphicsContext g;
@@ -55,4 +55,28 @@ public class AbstractNode {
         this.children.add(node);
         node.setParent(this);
     }
+
+     public void setRotation(double rotation) {
+        this.rotation = rotation;
+    }
+
+    public double getRotation() {
+        return rotation;
+    }
+
+      protected void applyTransformation() {
+    
+        g.save();
+        
+        if (rotation != 0) {
+            g.translate(x, y);
+            g.rotate(rotation);
+            g.translate(-x, -y);
+        }
+    }
+
+     protected void restoreTransformation() {
+        g.restore();
+    }
+
 }

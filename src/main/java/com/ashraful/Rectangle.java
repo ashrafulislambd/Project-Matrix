@@ -39,8 +39,14 @@ public class Rectangle extends AbstractNode {
 
     public void draw() {
         //System.out.println("I am called, " + getX() + " " + getY() + " " + width);
+       
+         applyTransformation();
+       
         g.setFill(Color.rgb(colorR, colorG, colorB));
         g.fillRect(getX(), getY(), width, height);
+        
+          restoreTransformation();
+        
 
         super.draw();
     }
