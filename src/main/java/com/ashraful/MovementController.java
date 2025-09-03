@@ -42,14 +42,14 @@ public class MovementController {
         int t = 0;
         for (int i = 1; i <= 15; i++) {
             t += 250;
-            Keyframe key1 = new Keyframe(t, 100); // ;, 100);
+            Keyframe key1 = new Keyframe(t, 100); 
             Keyframe ykey1 = new Keyframe(t, 100);
 
             Keyframe redColorKey1 = new Keyframe(t, 255);
             Keyframe greenColorKey1 = new Keyframe(t, 0);
             Keyframe blueColorKey1 = new Keyframe(t, 0);
             t += 250;
-            Keyframe key2 = new Keyframe(t, 225); // , 0);
+            Keyframe key2 = new Keyframe(t, 225);
             Keyframe ykey2 = new Keyframe(t, 0);
 
             Keyframe redColorKey1_5 = new Keyframe(t, 255);
@@ -61,13 +61,13 @@ public class MovementController {
             Keyframe blueColorKey2 = new Keyframe(t, 255);
 
             t += 250;
-            Keyframe key3 = new Keyframe(t, 350); // , 100);
+            Keyframe key3 = new Keyframe(t, 350); 
             Keyframe ykey3 = new Keyframe(t, 100);
             Keyframe redColorKey3 = new Keyframe(t, 0);
             Keyframe greenColorKey3 = new Keyframe(t, 255);
             Keyframe blueColorKey3 = new Keyframe(t, 0);
             t += 250;
-            Keyframe key4 = new Keyframe(t, 225); // , 200);
+            Keyframe key4 = new Keyframe(t, 225);
             Keyframe ykey4 = new Keyframe(t, 200);
 
             Keyframe redColorKey4 = new Keyframe(t, 0);
@@ -141,16 +141,12 @@ public class MovementController {
                 startY = animYManager.getProperty();
 
                 gc.clearRect(0, 0, canvasMain.getWidth(), canvasMain.getHeight());
-                // gc = canvasMain.getGraphicsContext2D();
+               
                 int redColorValue = redColorManager.getProperty();
                 int greenColorValue = greenColorManager.getProperty();
                 int blueColorValue = blueColorManager.getProperty();
                 gc.setFill(Color.rgb(redColorValue, greenColorValue, blueColorValue));
-                // 0 0 0
-                // 100 100 100
-                // 150 150 150
-                // 255 255 255
-                // gc.fillRect(startX, startY, 150, 100);
+                
 
                 circ.setRadius(waveManager.getProperty() % 50);
 
@@ -160,12 +156,12 @@ public class MovementController {
                 rect2.setColorG(greenColorValue);
                 rect2.setColorB(blueColorValue);
 
-                star.setOuterRadius(30 + (waveManager.getProperty() % 20)); // Pulsing effect
+                star.setOuterRadius(30 + (waveManager.getProperty() % 20)); 
                 star.setColorR(redColorValue);
                 star.setColorG(255 - redColorValue);
                 star.setColorB(blueColorValue);
 
-                arrow.setWidth(100 + (waveManager.getProperty() % 50)); // Size animation
+                arrow.setWidth(100 + (waveManager.getProperty() % 50)); 
                 arrow.setColorR(redColorManager.getProperty());
                 arrow.setColorG(greenColorManager.getProperty());
                 arrow.setColorB(blueColorManager.getProperty());
@@ -173,8 +169,8 @@ public class MovementController {
                 equilateralTriangle.setSize(60 + (waveManager.getProperty() % 40));
                 equilateralTriangle.setColorR(redColorManager.getProperty());
 
-                rect.setRotation(Config.getInstance().time * 0.5); // THIS IS THE ANGLE OF ROTATION THAT IS CHANGING
-                                                                   // WITH TIME FOR SMOOTH ANIMATION
+                rect.setRotation(Config.getInstance().time * 0.5); 
+                                                                   
 
                 rect.draw();
 

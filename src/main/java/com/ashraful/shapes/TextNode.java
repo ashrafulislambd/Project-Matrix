@@ -12,6 +12,10 @@ public class TextNode extends AbstractNode {
         this.text = text;
     }
 
+     public void setText(String newText) {
+        this.text = newText;
+    }
+
     @Override
     public void draw() {
         Font textFont = new Font("Arial", 20);
