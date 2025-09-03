@@ -1,7 +1,10 @@
 package com.ashraful;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.ashraful.shapes.Arrow;
+import com.ashraful.shapes.Circle;
+import com.ashraful.shapes.Rectangle;
+import com.ashraful.shapes.Star;
+import com.ashraful.shapes.Triangle;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
@@ -9,61 +12,6 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
-
-class Keyframe {
-    int time;
-
-    int x;
-
-    Keyframe(int time, int x) {
-        this.time = time;
-        this.x = x;
-    }
-}
-
-class AnimationManager {
-    public List<Keyframe> keyframes;
-
-    AnimationManager() {
-        keyframes = new ArrayList<Keyframe>();
-    }
-
-    public void addKeyFrame(Keyframe keyFrame) {
-        keyframes.add(keyFrame);
-    }
-
-    public int getProperty() {
-        int time = Config.getInstance().time;
-
-        Keyframe startKeyFrame = this.keyframes.get(0);
-        Keyframe endKeyframe = this.keyframes.get(this.keyframes.size() - 1);
-
-        int X = 0;
-        if (time < startKeyFrame.time) {
-            X = startKeyFrame.x;
-        }
-
-        if (time > endKeyframe.time) {
-            X = endKeyframe.x;
-        }
-
-        for (int i = 0; i < this.keyframes.size() - 1; i++) {
-            Keyframe leftKey = this.keyframes.get(i);
-            Keyframe rightKey = this.keyframes.get(i + 1);
-
-            if (time >= leftKey.time && time <= rightKey.time) {
-                double leftTime = leftKey.time;
-                double rightTime = rightKey.time;
-
-                double stX = leftKey.x
-                        + (((double) time - leftTime) / (rightTime - leftTime)) * (rightKey.x - leftKey.x);
-                X = (int) stX;
-            }
-        }
-
-        return X;
-    }
-}
 
 public class MovementController {
     @FXML

@@ -1,7 +1,10 @@
 module com.ashraful {
     requires javafx.controls;
     requires javafx.fxml;
+    requires transitive javafx.graphics;
+    requires javafx.swing;
+    requires java.desktop;
 
-    opens com.ashraful to javafx.fxml;
     exports com.ashraful;
+    opens com.ashraful to javafx.fxml;
 }
