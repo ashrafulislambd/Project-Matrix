@@ -12,9 +12,8 @@ public class DijkstraClip extends AbstractClip {
     private AbstractNode root;
     private LabelBox[] nodes;
     private List<int[]>[] graph;
-    private int[] dist;
-    private List<Integer> visitOrder;
-    private int step = -1;
+    private AnimationManager[] nodeManagers;
+    private AnimationManager[] distManagers;
 
     @SuppressWarnings("unchecked")
     DijkstraClip(GraphicsContext gc) {
@@ -25,10 +24,16 @@ public class DijkstraClip extends AbstractClip {
         int n = 5;
         nodes = new LabelBox[n];
         graph = new ArrayList[n];
-        dist = new int[n];
-        visitOrder = new ArrayList<>();
+        nodeManagers = new AnimationManager[n];
+        distManagers = new AnimationManager[n];
 
-        for (int i = 0; i < n; i++) graph[i] = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            graph[i] = new ArrayList<>();
+            nodeManagers[i] = new AnimationManager();
+            nodeManagers[i].addKeyFrame(new Keyframe(0, 0)); // Not visited
+            distManagers[i] = new AnimationManager();
+            distManagers[i].addKeyFrame(new Keyframe(0, Integer.MAX_VALUE)); // Initial distance is infinity
+        }
 
         addEdge(0, 1, 4);
         addEdge(0, 2, 1);
@@ -45,7 +50,7 @@ public class DijkstraClip extends AbstractClip {
             root.addChildren(nodes[i]);
         }
 
-        runDijkstra(0);
+        setupAnimation();
     }
 
     private void addEdge(int u, int v, int w) {
@@ -53,12 +58,17 @@ public class DijkstraClip extends AbstractClip {
         graph[v].add(new int[]{u, w});
     }
 
-    private void runDijkstra(int src) {
+    private void setupAnimation() {
+        int time = 0;
+        int[] dist = new int[graph.length];
         Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[src] = 0;
+        dist[0] = 0; // Start from node 0
+
+        // Set initial distance for source node
+        distManagers[0].addKeyFrame(new Keyframe(0, 0));
 
         PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
-        pq.add(new int[]{src, 0});
+        pq.add(new int[]{0, 0});
 
         boolean[] visited = new boolean[graph.length];
 
@@ -67,15 +77,24 @@ public class DijkstraClip extends AbstractClip {
             int u = cur[0];
             if (visited[u]) continue;
             visited[u] = true;
-            visitOrder.add(u);
 
+            // Highlight current node
+            nodeManagers[u].addKeyFrame(new Keyframe(time, 1));
+            time += 30;
+
+            // Process edges from current node
             for (int[] e : graph[u]) {
                 int v = e[0], w = e[1];
                 if (dist[u] + w < dist[v]) {
                     dist[v] = dist[u] + w;
                     pq.add(new int[]{v, dist[v]});
+                    
+                    // Update distance display for the node
+                    distManagers[v].addKeyFrame(new Keyframe(time, dist[v]));
                 }
             }
+
+            time += 30; // Additional time between node processing
         }
     }
 
@@ -83,7 +102,7 @@ public class DijkstraClip extends AbstractClip {
     protected void drawFrame() {
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 
-        // draw edges
+        // Draw edges
         gc.setStroke(Color.GRAY);
         gc.setLineWidth(2);
         for (int u = 0; u < graph.length; u++) {
@@ -97,12 +116,20 @@ public class DijkstraClip extends AbstractClip {
             }
         }
 
-        for (LabelBox node : nodes) node.reset();
-
-        for (int i = 0; i <= step && i < visitOrder.size(); i++) {
-            int u = visitOrder.get(i);
-            nodes[u].highlight();
-            nodes[u].label.setText(dist[u] == Integer.MAX_VALUE ? "∞" : String.valueOf(dist[u]));
+        // Draw nodes with current state
+        for (int i = 0; i < nodes.length; i++) {
+            nodes[i].reset();
+            
+            // Apply visited highlighting if needed
+            if (nodeManagers[i].getProperty() == 1) {
+                nodes[i].highlight();
+            }
+            
+            // Update distance text
+            int distance = distManagers[i].getProperty();
+            nodes[i].label.setText(distance == Integer.MAX_VALUE ? "∞" : String.valueOf(distance));
+            
+            nodes[i].draw();
         }
 
         root.draw();
@@ -110,20 +137,17 @@ public class DijkstraClip extends AbstractClip {
 
     @Override
     public void play() {
-        step = -1;
+        // Reset time to start animation from beginning
+        Config.getInstance().time = 0;
+
         AnimationTimer timer = new AnimationTimer() {
-            long last = 0;
-            long interval = 1000_000_000L;
             @Override
-            public void handle(long now) {
-                if (last == 0) last = now;
-                if (now - last > interval) {
-                    if (step < visitOrder.size() - 1) step++;
-                    last = now;
-                }
+            public void handle(long arg0) {
                 drawFrame();
+                Config.getInstance().time++;
             }
         };
+
         timer.start();
     }
 }

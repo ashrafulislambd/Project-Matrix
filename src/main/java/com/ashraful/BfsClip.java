@@ -13,8 +13,7 @@ public class BfsClip extends AbstractClip {
     private LabelBox[] nodes;
     private List<Integer>[] tree;
     private List<Integer> bfsOrder;
-
-    private int step = -1;
+    private AnimationManager[] highlightManagers;
 
     @SuppressWarnings("unchecked")
     BfsClip(GraphicsContext gc) {
@@ -26,7 +25,14 @@ public class BfsClip extends AbstractClip {
         nodes = new LabelBox[n];
         tree = new ArrayList[n];
         bfsOrder = new ArrayList<>();
-        for (int i = 0; i < n; i++) tree[i] = new ArrayList<>();
+        highlightManagers = new AnimationManager[n];
+
+        for (int i = 0; i < n; i++) {
+            tree[i] = new ArrayList<>();
+            highlightManagers[i] = new AnimationManager();
+            // Initially all nodes are not highlighted (0)
+            highlightManagers[i].addKeyFrame(new Keyframe(0, 0));
+        }
 
         // same tree as DFS
         tree[0].addAll(Arrays.asList(1, 2, 3));
@@ -52,9 +58,15 @@ public class BfsClip extends AbstractClip {
         q.add(start);
         visited[start] = true;
 
+        int time = 0;
         while (!q.isEmpty()) {
             int u = q.poll();
             bfsOrder.add(u);
+            
+            // Add keyframe to highlight current node
+            highlightManagers[u].addKeyFrame(new Keyframe(time, 1));
+            time += 100; // 100 frames interval between nodes
+            
             for (int v : tree[u]) {
                 if (!visited[v]) {
                     visited[v] = true;
@@ -68,7 +80,7 @@ public class BfsClip extends AbstractClip {
     protected void drawFrame() {
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
 
-        // draw edges
+        // Draw edges
         gc.setStroke(Color.BLACK);
         gc.setLineWidth(2);
         for (int u = 0; u < tree.length; u++) {
@@ -78,27 +90,24 @@ public class BfsClip extends AbstractClip {
             }
         }
 
+        // Reset and update node highlights based on animation managers
         for (LabelBox node : nodes) node.reset();
-        for (int i = 0; i <= step && i < bfsOrder.size(); i++) {
-            nodes[bfsOrder.get(i)].highlight();
+        for (int i = 0; i < nodes.length; i++) {
+            if (highlightManagers[i].getProperty() == 1) {
+                nodes[i].highlight();
+            }
         }
         root.draw();
     }
 
     @Override
     public void play() {
-        step = -1;
+        Config.getInstance().time = 0;
         AnimationTimer timer = new AnimationTimer() {
-            long last = 0;
-            long interval = 700_000_000L;
             @Override
-            public void handle(long now) {
-                if (last == 0) last = now;
-                if (now - last > interval) {
-                    if (step < bfsOrder.size() - 1) step++;
-                    last = now;
-                }
+            public void handle(long arg0) {
                 drawFrame();
+                Config.getInstance().time++;
             }
         };
         timer.start();

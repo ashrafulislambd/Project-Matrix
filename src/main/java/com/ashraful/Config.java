@@ -6,7 +6,6 @@ public class Config {
     int time = 0;
 
     private Config() {
-
     }
 
     static Config getInstance() {
@@ -14,5 +13,9 @@ public class Config {
             instance = new Config();
         }
         return instance;
+    }
+
+    public void reset() {
+        time = 0;
     }
 }

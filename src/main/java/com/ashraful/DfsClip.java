@@ -16,7 +16,7 @@ public class DfsClip extends AbstractClip {
     private List<Integer>[] tree;   
     private List<Integer> dfsOrder; 
 
-    private int step = -1;
+    private AnimationManager[] highlightManagers;
 
     DfsClip(GraphicsContext gc) {
         super();
@@ -32,8 +32,14 @@ public class DfsClip extends AbstractClip {
         nodes = new LabelBox[n];
         tree = new ArrayList[n];
         dfsOrder = new ArrayList<>();
+        highlightManagers = new AnimationManager[n];
 
-        for (int i = 0; i < n; i++) tree[i] = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            tree[i] = new ArrayList<>();
+            highlightManagers[i] = new AnimationManager();
+            // Initially all nodes are not highlighted (0)
+            highlightManagers[i].addKeyFrame(new Keyframe(0, 0));
+        }
 
       
         tree[0].add(1);
@@ -63,6 +69,11 @@ public class DfsClip extends AbstractClip {
     private void dfs(int u, boolean[] visited) {
         visited[u] = true;
         dfsOrder.add(u);
+        
+        // Set up animation keyframes based on DFS order
+        int time = dfsOrder.size() * 100; // 100 frames interval between nodes (about 0.5 seconds at 60fps)
+        highlightManagers[u].addKeyFrame(new Keyframe(time, 1)); // Highlight when visited
+        
         for (int v : tree[u]) {
             if (!visited[v]) dfs(v, visited);
         }
@@ -84,10 +95,14 @@ public class DfsClip extends AbstractClip {
         }
 
 
+        // Reset all nodes first
         for (LabelBox node : nodes) node.reset();
 
-        for (int i = 0; i <= step && i < dfsOrder.size(); i++) {
-            nodes[dfsOrder.get(i)].highlight();
+        // Highlight nodes based on animation managers
+        for (int i = 0; i < nodes.length; i++) {
+            if (highlightManagers[i].getProperty() == 1) {
+                nodes[i].highlight();
+            }
         }
 
         root.draw();
@@ -95,23 +110,12 @@ public class DfsClip extends AbstractClip {
 
     @Override
     public void play() {
-        step = -1;
         Config.getInstance().time = 0;
-
         AnimationTimer timer = new AnimationTimer() {
-            private long lastUpdate = 0;
-            private final long interval = 700_000_000L; 
-
             @Override
-            public void handle(long now) {
-                if (lastUpdate == 0) lastUpdate = now;
-                if (now - lastUpdate >= interval) {
-                    if (step < dfsOrder.size() - 1) {
-                        step++;
-                    }
-                    lastUpdate = now;
-                }
+            public void handle(long arg0) {
                 drawFrame();
+                Config.getInstance().time++;
             }
         };
         timer.start();

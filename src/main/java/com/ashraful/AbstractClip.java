@@ -8,10 +8,17 @@ import java.io.File;
 import javax.imageio.ImageIO;
 
 public abstract class AbstractClip {
-    GraphicsContext gc;
+    protected GraphicsContext gc;
+    protected javafx.animation.AnimationTimer animationTimer;
 
     public void setGraphicsContext(GraphicsContext gc) {
         this.gc = gc;
+    }
+
+    public void stop() {
+        if (animationTimer != null) {
+            animationTimer.stop();
+        }
     }
 
     public abstract void play();
